@@ -11,7 +11,7 @@ export function DeltagerManager() {
   const [deltagere, setDeltagere] = useState<Deltager[]>([]);
   const [discipliner, setDiscipliner] = useState<Disciplin[]>([]);
   const [selectedDeltager, setSelectedDeltager] = useState<Deltager | null>(null);
-  const [selectedDisciplin, setSelectedDisciplin] = useState<Disciplin | null>(null);
+  const [selectedDisciplin, setSelectedDisciplin] = useState<Disciplin[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"create" | "edit" | "delete">(
     "create"
@@ -37,39 +37,38 @@ export function DeltagerManager() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedDeltager && selectedDisciplin) {
-      selectedDeltager.discipliner = [selectedDisciplin];
+    if (selectedDeltager) {
+      if (modalType === "edit" && selectedDeltager.id) {
+        await updateDeltager(selectedDeltager.id, selectedDeltager);
+      } else if (modalType === "create") {
+        await createDeltager(selectedDeltager);
+      }
+      await fetchDeltagere();
+      setIsModalOpen(false);
+      toast({
+        title: modalType === "create" ? "Deltager oprettet" : "Deltager opdateret",
+        description: modalType === "create" ? "Deltager er nu oprettet" : "Deltager er nu opdateret",
+        variant: "default",
+      });
     }
-    if (modalType === "edit" && selectedDeltager && selectedDeltager.id) {
-      await updateDeltager(selectedDeltager.id, selectedDeltager);
-    } else if (modalType === "create" && selectedDeltager) {
-      await createDeltager(selectedDeltager);
-    }
-    await fetchDeltagere();
-    setIsModalOpen(false);
-    toast({
-      title: modalType === "create" ? "Deltager oprettet" : "Deltager opdateret",
-      description: modalType === "create" ? "Deltager er nu oprettet" : "Deltager er nu opdateret",
-      variant: "default",
-    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSelectedDeltager(prev => {
-    // if null, create new deltager object with default values and the updated field to satisfy TS...
+    // if null, create new product object with default values and the updated field to satisfy TS...
       if (prev === null) {
         const newDeltager: Deltager = {
           navn: "",
           køn: "",
           alder: 0,
           klub: "",
-          discipliner: selectedDisciplin ? [selectedDisciplin] : [],
+          discipliner: selectedDisciplin, 
           [name]: value,
         };
         return newDeltager;
       } else {
-        return { ...prev, [name]: value, discipliner: selectedDisciplin ? [selectedDisciplin] : prev.discipliner };
+        return { ...prev, [name]: value, discipliner: selectedDisciplin }; 
       }
     });
   };
@@ -80,11 +79,9 @@ export function DeltagerManager() {
     setIsModalOpen(true);
   
     if (deltager) {
-      // Assuming a Deltager can have multiple discipliner, we take the first one for simplicity
-      const disciplin = deltager.discipliner.length > 0 ? deltager.discipliner[0] : null;
-      setSelectedDisciplin(disciplin);
+      setSelectedDisciplin(deltager.discipliner);
     } else {
-      setSelectedDisciplin(null);
+      setSelectedDisciplin([]);
     }
   };
 
@@ -102,23 +99,17 @@ export function DeltagerManager() {
   };
 
   const handleDisciplinChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    const disciplin = discipliner.find(disciplin => disciplin.navn === value);
-    setSelectedDisciplin(prev => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    const selectedDiscipliner = discipliner.filter(disciplin => selectedOptions.includes(disciplin.navn));
+    // Update selectedDisciplin state
+    setSelectedDisciplin(selectedDiscipliner); 
+    setSelectedDeltager(prev => {
       if (prev === null) {
-        // If prev is null, create a new deltager with default values (to satisfy TS)
-        return {
-          navn: "", 
-          resultatType: "", 
-        };
+        return null;
       } else {
-        return {
-          ...prev,
-          disciplin: disciplin ? disciplin.navn : ""
-        };
+        return { ...prev, discipliner: selectedDiscipliner };
       }
     });
-    setSelectedDisciplin(disciplin || null);
   };
 
   return (
@@ -205,7 +196,8 @@ export function DeltagerManager() {
             <div>
               <label>Disciplin</label>
               <select
-                value={selectedDisciplin?.navn ?? ""}
+                multiple
+                value={selectedDisciplin?.map(d => d.navn) ?? []}
                 onChange={handleDisciplinChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
