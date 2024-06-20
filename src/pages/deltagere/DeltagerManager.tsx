@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDeltagere, createDeltager, updateDeltager, deleteDeltager, getDeltagerByName } from "../../services/api/deltagerapi";
+import { getDeltagere, createDeltager, updateDeltager, deleteDeltager, getDeltagerByName, getFilteredDeltagere } from "../../services/api/deltagerapi";
 import { getDiscipliner } from "../../services/api/disciplinapi";
 import Modal from "../../components/Modal";
 import InputField from "../../components/InputField";
@@ -14,6 +14,11 @@ export function DeltagerManager() {
   const [discipliner, setDiscipliner] = useState<Disciplin[]>([]);
   const [selectedDeltager, setSelectedDeltager] = useState<Deltager | null>(null);
   const [selectedDisciplin, setSelectedDisciplin] = useState<Disciplin[]>([]);
+  const [filterKøn, setFilterKøn] = useState<string>("");
+  const [filterMinAlder, setFilterMinAlder] = useState<number | null>(null);
+  const [filterMaxAlder, setFilterMaxAlder] = useState<number | null>(null);
+  const [filterKlub, setFilterKlub] = useState<string>("");
+  const [filterDisciplin, setFilterDisciplin] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"create" | "edit" | "delete" | "details">(
     "create"
@@ -131,6 +136,54 @@ export function DeltagerManager() {
     setModalType('details');
   }
 
+  const handleFilterChange = async (køn?: string, minAlder?: number, maxAlder?: number, klub?: string, disciplin?: string) => {
+    try {
+      // Log the filter parameters
+      console.log("Filter parameters:", {
+        køn,
+        minAlder,
+        maxAlder,
+        klub,
+        disciplin,
+      });
+  
+      const response = await getFilteredDeltagere(køn, minAlder, maxAlder, klub, disciplin);
+  
+      // Log the response from the API
+      console.log("Filtered deltagere response:", response);
+  
+      setDeltagere(response);
+    } catch (error) {
+      console.error("Error fetching filtered deltagere:", error);
+      setDeltagere([]);
+    }
+  };
+
+  const handleKønChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setFilterKøn(value);
+    handleFilterChange(value, filterMinAlder ?? undefined, filterMaxAlder ?? undefined, filterKlub, filterDisciplin);
+  };
+
+  const handleAlderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const [min, max] = e.target.value.split("-").map(Number);
+    setFilterMinAlder(min);
+    setFilterMaxAlder(max);
+    handleFilterChange(filterKøn, min, max, filterKlub, filterDisciplin);
+  };
+
+  const handleKlubChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFilterKlub(value);
+    handleFilterChange(filterKøn, filterMinAlder ?? undefined, filterMaxAlder ?? undefined, value, filterDisciplin);
+  };
+
+  const handleDisciplinFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setFilterDisciplin(value);
+    handleFilterChange(filterKøn, filterMinAlder ?? undefined, filterMaxAlder ?? undefined, filterKlub, value);
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-bold leading-tight text-gray-900">
@@ -143,6 +196,64 @@ export function DeltagerManager() {
       >
         Tilføj ny deltager
       </Button>
+
+      <div className="mt-4 flex flex-row justify-between">
+        <div>
+          <label>Filtrér Køn</label>
+          <select
+            value={filterKøn}
+            onChange={handleKønChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Alle</option>
+            <option value="Mand">Mand</option>
+            <option value="Kvinde">Kvinde</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Filtrér Alder</label>
+          <select
+            value={`${filterMinAlder}-${filterMaxAlder}`}
+            onChange={handleAlderChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Alle</option>
+            <option value="6-9">Børn (6-9)</option>
+            <option value="10-13">Unge (10-13)</option>
+            <option value="14-22">Junior (14-22)</option>
+            <option value="23-40">Voksne (23-40)</option>
+            <option value="41-150">Senior (41-)</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Filtrér Klub</label>
+          <input
+            type="text"
+            value={filterKlub}
+            onChange={handleKlubChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Indtast klub"
+          />
+        </div>
+
+        <div>
+          <label>Filtrér Disciplin</label>
+          <select
+            value={filterDisciplin}
+            onChange={handleDisciplinFilterChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Alle</option>
+            {discipliner?.map((disciplin) => (
+              <option key={disciplin.id} value={disciplin.navn}>
+                {disciplin.navn}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <ul className="mt-6">
         {deltagere.map((deltager, index) => (
