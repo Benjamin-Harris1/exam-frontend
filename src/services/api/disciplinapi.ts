@@ -5,6 +5,5 @@ import { API_URL } from "../../settings";
 const API_URL_DISCIPLINER = `${API_URL}/discipliner`;
 
 export const getDiscipliner = async () => {
-    const response = await axios.get(API_URL_DISCIPLINER);
-    return response.data;
+    return axios.get(API_URL_DISCIPLINER);
 }

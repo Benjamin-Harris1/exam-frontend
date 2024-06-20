@@ -26,13 +26,13 @@ export function DeltagerManager() {
 
   const fetchDeltagere = async () => {
     const response = await getDeltagere();
-    setDeltagere(response);
+    setDeltagere(response.data);
     
   };
 
   const fetchDiscipliner = async () => {
     const response = await getDiscipliner();
-    setDiscipliner(response);
+    setDiscipliner(response.data);
   }
 
   const handleFormSubmit = async (e: React.FormEvent) => {

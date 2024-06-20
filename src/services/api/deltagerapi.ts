@@ -5,9 +5,7 @@ import { Deltager } from "../../interfaces/interfaces";
 const API_URL_DELTAGER = `${API_URL}/deltager`;
 
 export const getDeltagere = async () => {
-  const response = await axios.get(API_URL_DELTAGER);
-  console.log(response.data);
-  return response.data;
+  return axios.get(API_URL_DELTAGER);
 };
 
 export const getDeltagereById = async (id: number) => {
