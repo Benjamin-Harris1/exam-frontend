@@ -11,6 +11,11 @@ export const getDeltagere = async () => {
 export const getDeltagereById = async (id: number) => {
   return axios.get(`${API_URL_DELTAGER}/${id}`);
 };
+
+export const getDeltagerByName = async (name: string) => {
+  const response = await axios.get(`${API_URL_DELTAGER}/name/${name}`);
+  return response.data; 
+};
  
 export const createDeltager = async (deltager: Deltager) => {
   return axios.post(API_URL_DELTAGER, deltager);

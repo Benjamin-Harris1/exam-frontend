@@ -13,7 +13,7 @@ import InputField from "../../components/InputField";
 import { Resultat, Deltager, Disciplin } from "../../interfaces/interfaces";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import BatchResultatForm from "@/components/BatchResultatForm";
+import BatchResultatForm from "@/pages/resultater/BatchResultatForm";
 
 export function ResultatManager() {
   const [resultater, setResultater] = useState<Resultat[]>([]);

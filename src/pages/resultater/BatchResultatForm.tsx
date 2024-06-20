@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Resultat, Deltager, Disciplin } from "@/interfaces/interfaces";
 import { createResultater } from "@/services/api/resultatapi";
 import { Button } from "@/components/ui/button";
-import InputField from "./InputField";
-import Modal from "./Modal";
+import InputField from "../../components/InputField";
+import Modal from "../../components/Modal";
 import { useToast } from "@/components/ui/use-toast";
 
 interface BatchResultatFormProps {

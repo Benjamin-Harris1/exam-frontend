@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { getDeltagere, createDeltager, updateDeltager, deleteDeltager } from "../../services/api/deltagerapi";
+import { getDeltagere, createDeltager, updateDeltager, deleteDeltager, getDeltagerByName } from "../../services/api/deltagerapi";
 import { getDiscipliner } from "../../services/api/disciplinapi";
 import Modal from "../../components/Modal";
 import InputField from "../../components/InputField";
 import { Deltager, Disciplin } from "../../interfaces/interfaces";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import SearchBar from "@/components/SearchBar";
 
 export function DeltagerManager() {
   const [deltagere, setDeltagere] = useState<Deltager[]>([]);
@@ -112,11 +113,23 @@ export function DeltagerManager() {
     });
   };
 
+  const handleSearch = async (searchTerm: string) => {
+    if (searchTerm) {
+      const response = await getDeltagerByName(searchTerm);
+      console.log("Search response:", response); // Log the response
+      const searchedDeltagere = Array.isArray(response) ? response : [response];
+      setDeltagere(searchedDeltagere);
+    } else {
+      fetchDeltagere();
+    }
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold leading-tight text-gray-900">
         Administration
       </h1>
+      <SearchBar onSearch={handleSearch} />
       <Button
         onClick={() => openModal("create")}
         className="mt-4 py-2 px-4 rounded"
@@ -125,9 +138,9 @@ export function DeltagerManager() {
       </Button>
 
       <ul className="mt-6">
-        {deltagere.map(deltager => (
+        {deltagere.map((deltager, index) => (
           <li
-            key={deltager.id}
+            key={deltager.id || index} // Use index to ensure theres a unique key
             className="flex justify-between items-center bg-white shadow px-4 py-2 rounded-lg mt-2"
           >
             <span className="font-medium text-gray-800">

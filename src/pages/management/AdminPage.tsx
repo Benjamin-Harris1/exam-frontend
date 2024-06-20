@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { DeltagerManager } from "./DeltagerManager";
-import { DisciplinManager } from "./DisciplinManager";
+import { DeltagerManager } from "../deltagere/DeltagerManager";
+import { DisciplinManager } from "../discipliner/DisciplinManager";
 import { Button } from "@/components/ui/button";
-import { ResultatManager } from "./ResultatManager";
+import { ResultatManager } from "../resultater/ResultatManager";
 
 
 export default function AdminPage() {
