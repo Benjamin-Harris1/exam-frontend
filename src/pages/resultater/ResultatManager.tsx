@@ -186,7 +186,7 @@ export function ResultatManager() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold leading-tight text-gray-9000">Administration af Resultater</h1>
+      <h1 className="text-3xl font-bold leading-tight text-gray-9000">Resultater</h1>
 
       <div className="flex flex-row justify-between">
       <Button onClick={() => openModal("create")} className="mt-4 py-2 px-4 rounded">

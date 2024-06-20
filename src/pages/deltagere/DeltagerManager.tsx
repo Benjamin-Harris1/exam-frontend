@@ -7,6 +7,7 @@ import { Deltager, Disciplin } from "../../interfaces/interfaces";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import SearchBar from "@/components/SearchBar";
+import DeltagerDetails from "./DeltagerDetails";
 
 export function DeltagerManager() {
   const [deltagere, setDeltagere] = useState<Deltager[]>([]);
@@ -14,7 +15,7 @@ export function DeltagerManager() {
   const [selectedDeltager, setSelectedDeltager] = useState<Deltager | null>(null);
   const [selectedDisciplin, setSelectedDisciplin] = useState<Disciplin[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<"create" | "edit" | "delete">(
+  const [modalType, setModalType] = useState<"create" | "edit" | "delete" | "details">(
     "create"
   );
   const {toast} = useToast();
@@ -124,10 +125,16 @@ export function DeltagerManager() {
     }
   }
 
+  const openDeltagerDetails = (deltager: Deltager) => {
+    setSelectedDeltager(deltager);
+    setIsModalOpen(true);
+    setModalType('details');
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold leading-tight text-gray-900">
-        Administration
+        Deltagere
       </h1>
       <SearchBar onSearch={handleSearch} />
       <Button
@@ -143,7 +150,7 @@ export function DeltagerManager() {
             key={deltager.id || index} // Use index to ensure theres a unique key
             className="flex justify-between items-center bg-white shadow px-4 py-2 rounded-lg mt-2"
           >
-            <span className="font-medium text-gray-800">
+            <span onClick={() => openDeltagerDetails(deltager)} className="font-medium text-gray-800 hover:underline cursor-pointer">
                 {deltager.navn}
             </span>
             <div>
@@ -173,7 +180,9 @@ export function DeltagerManager() {
           modalType.charAt(0).toUpperCase() + modalType.slice(1)
         } Deltager`}
       >
-        {modalType !== "delete" ? (
+        {modalType === "details" ? (
+          <DeltagerDetails deltager={selectedDeltager!} />
+        ) : modalType !== "delete" ? (
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <InputField
               label="Navn"
@@ -222,7 +231,6 @@ export function DeltagerManager() {
                 ))}
               </select>
             </div>
-
             <Button
               type="submit"
               className="mt-4 py-2 px-4 rounded"
