@@ -92,6 +92,19 @@ export function ResultatManager() {
     setModalType(type);
     setSelectedResultat(resultat || null);
     setIsModalOpen(true);
+
+    if (type === "create") {
+      setSelectedDisciplin("");
+      setSelectedDeltager("");
+      setFilteredDiscipliner([]);
+    } else if (resultat) {
+      const selectedDeltager = deltagere.find((d) => d.id === resultat.deltagerId);
+      if (selectedDeltager) {
+        setFilteredDiscipliner(selectedDeltager.discipliner);
+        setSelectedDisciplin(resultat.disciplinId.toString());
+        setSelectedDeltager(resultat.deltagerId.toString());
+      }
+    }
   };
 
   const handleDelete = async () => {
@@ -111,15 +124,15 @@ export function ResultatManager() {
     const disciplinId = parseInt(selectedDisciplin, 10);
     const minAlder = filterMinAlder !== null ? parseInt(filterMinAlder.toString(), 10) : undefined;
     const maxAlder = filterMaxAlder !== null ? parseInt(filterMaxAlder.toString(), 10) : undefined;
-  
+
     // Log the parameters
     console.log("Filter parameters:", {
       disciplinId,
       køn: filterKøn,
       minAlder,
-      maxAlder
+      maxAlder,
     });
-  
+
     try {
       const response = await getResultaterByDisciplin(disciplinId, filterKøn, minAlder, maxAlder);
       setResultater(response);
@@ -136,8 +149,14 @@ export function ResultatManager() {
     const selectedDeltager = deltagere.find((d) => d.id === selectedDeltagerId);
     if (selectedDeltager) {
       setFilteredDiscipliner(selectedDeltager.discipliner);
+      if (selectedDeltager.discipliner.length > 0) {
+        setSelectedDisciplin(selectedDeltager.discipliner[0].id?.toString() || "");
+      } else {
+        setSelectedDisciplin("");
+      }
     } else {
       setFilteredDiscipliner([]);
+      setSelectedDisciplin("");
     }
   };
 
@@ -157,7 +176,7 @@ export function ResultatManager() {
       </Button>
 
       <div className="mt-4">
-        <label>Filter Disciplin</label>
+        <label>Filtrer Disciplin</label>
         <select
           value={selectedDisciplin}
           onChange={(e) => setSelectedDisciplin(e.target.value)}
@@ -207,15 +226,13 @@ export function ResultatManager() {
         />
       </div>
       <div className="flex flex-row justify-between">
-      <Button onClick={handleFilterChange} className="mt-4 py-2 px-4 rounded">
-        Anvend filter
-      </Button>
-      <Button onClick={resetFilters} className="mt-4 py-2 px-4 rounded">
-        Nulstil filter
-      </Button>
+        <Button onClick={handleFilterChange} className="mt-4 py-2 px-4 rounded">
+          Anvend filter
+        </Button>
+        <Button onClick={resetFilters} className="mt-4 py-2 px-4 rounded">
+          Nulstil filter
+        </Button>
       </div>
-
-
 
       <ul className="mt-6">
         {resultater && resultater.length > 0 ? (
