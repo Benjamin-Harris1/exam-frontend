@@ -2,7 +2,8 @@ import "./index.css"
 import Layout from "./Layout"
 import { Route, Routes } from "react-router-dom"
 import Home from "./Home"
-import { DeltagerManager } from "./pages/management/DeltagerManager"
+import AdminPage from "./pages/management/AdminPage"
+import { Toaster } from "./components/ui/toaster"
 
 
 function App(){
@@ -11,9 +12,10 @@ function App(){
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/management" element={<DeltagerManager />} />
+        <Route path="/management" element={<AdminPage />} />
       </Routes>
     </Layout>
+    <Toaster />
     
     </>
   )
