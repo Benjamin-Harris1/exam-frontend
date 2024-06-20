@@ -19,6 +19,7 @@ export function ResultatManager() {
   const [resultater, setResultater] = useState<Resultat[]>([]);
   const [deltagere, setDeltagere] = useState<Deltager[]>([]);
   const [discipliner, setDiscipliner] = useState<Disciplin[]>([]);
+  const [filteredDiscipliner, setFilteredDiscipliner] = useState<Disciplin[]>([]);
   const [selectedResultat, setSelectedResultat] = useState<Resultat | null>(null);
   const [selectedDisciplin, setSelectedDisciplin] = useState<string>("");
   const [selectedDeltager, setSelectedDeltager] = useState<string>("");
@@ -110,9 +111,42 @@ export function ResultatManager() {
     const disciplinId = parseInt(selectedDisciplin, 10);
     const minAlder = filterMinAlder !== null ? parseInt(filterMinAlder.toString(), 10) : undefined;
     const maxAlder = filterMaxAlder !== null ? parseInt(filterMaxAlder.toString(), 10) : undefined;
-    
-    const response = await getResultaterByDisciplin(disciplinId, filterKøn, minAlder, maxAlder);
-    setResultater(response.data);
+  
+    // Log the parameters
+    console.log("Filter parameters:", {
+      disciplinId,
+      køn: filterKøn,
+      minAlder,
+      maxAlder
+    });
+  
+    try {
+      const response = await getResultaterByDisciplin(disciplinId, filterKøn, minAlder, maxAlder);
+      setResultater(response);
+    } catch (error) {
+      console.error("Error fetching filtered results:", error);
+      setResultater([]); // Set to empty array on error
+    }
+  };
+
+  const handleDeltagerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedDeltagerId = parseInt(e.target.value);
+    setSelectedDeltager(e.target.value);
+
+    const selectedDeltager = deltagere.find((d) => d.id === selectedDeltagerId);
+    if (selectedDeltager) {
+      setFilteredDiscipliner(selectedDeltager.discipliner);
+    } else {
+      setFilteredDiscipliner([]);
+    }
+  };
+
+  const resetFilters = () => {
+    setSelectedDisciplin("");
+    setFilterKøn("");
+    setFilterMinAlder(null);
+    setFilterMaxAlder(null);
+    fetchResultater();
   };
 
   return (
@@ -146,8 +180,8 @@ export function ResultatManager() {
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="">Vælg køn</option>
-          <option value="male">Mand</option>
-          <option value="female">Kvinde</option>
+          <option value="mand">Mand</option>
+          <option value="kvinde">Kvinde</option>
         </select>
       </div>
 
@@ -172,39 +206,52 @@ export function ResultatManager() {
           placeholder="Indtast maksimum alder"
         />
       </div>
-
+      <div className="flex flex-row justify-between">
       <Button onClick={handleFilterChange} className="mt-4 py-2 px-4 rounded">
         Anvend filter
       </Button>
+      <Button onClick={resetFilters} className="mt-4 py-2 px-4 rounded">
+        Nulstil filter
+      </Button>
+      </div>
+
+
 
       <ul className="mt-6">
-        {resultater.map((resultat) => {
-          const deltager = deltagere.find((d) => d.id === resultat.deltagerId);
-          const disciplin = discipliner.find((d) => d.id === resultat.disciplinId);
-          return (
-            <li key={resultat.id} className="flex justify-between items-center bg-white shadow px-4 py-2 rounded-lg mt-2">
-              <div className="flex flex-col">
-                <span className="font-medium text-gray-800">
-                  Navn: <span className="font-normal">{deltager?.navn}</span>
-                </span>
-                <span className="font-medium text-gray-800">
-                  Disciplin: <span className="font-normal">{disciplin?.navn}</span>
-                </span>
-                <span className="font-medium text-gray-800">
-                  Resultat: <span className="font-normal">{resultat.resultatværdi}</span>
-                </span>
-              </div>
-              <div>
-                <Button onClick={() => openModal("edit", resultat)} variant="secondary" className="py-1 px-3 rounded mr-2 hover:bg-gray-200">
-                  Rediger
-                </Button>
-                <Button onClick={() => openModal("delete", resultat)} variant="secondary" className="py-1 px-3 rounded hover:bg-gray-200">
-                  Slet
-                </Button>
-              </div>
-            </li>
-          );
-        })}
+        {resultater && resultater.length > 0 ? (
+          resultater.map((resultat) => {
+            const deltager = deltagere.find((d) => d.id === resultat.deltagerId);
+            const disciplin = discipliner.find((d) => d.id === resultat.disciplinId);
+            return (
+              <li key={resultat.id} className="flex justify-between items-center bg-white shadow px-4 py-2 rounded-lg mt-2">
+                <div className="flex flex-col">
+                  <span className="font-medium text-gray-800">
+                    Navn: <span className="font-normal">{deltager?.navn}</span>
+                  </span>
+                  <span className="font-medium text-gray-800">
+                    Alder: <span className="font-normal">{deltager?.alder}</span>
+                  </span>
+                  <span className="font-medium text-gray-800">
+                    Disciplin: <span className="font-normal">{disciplin?.navn}</span>
+                  </span>
+                  <span className="font-medium text-gray-800">
+                    Resultat: <span className="font-normal">{resultat.resultatværdi}</span>
+                  </span>
+                </div>
+                <div>
+                  <Button onClick={() => openModal("edit", resultat)} variant="secondary" className="py-1 px-3 rounded mr-2 hover:bg-gray-200">
+                    Rediger
+                  </Button>
+                  <Button onClick={() => openModal("delete", resultat)} variant="secondary" className="py-1 px-3 rounded hover:bg-gray-200">
+                    Slet
+                  </Button>
+                </div>
+              </li>
+            );
+          })
+        ) : (
+          <li>Ingen resultater fundet</li>
+        )}
       </ul>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`${modalType.charAt(0).toUpperCase() + modalType.slice(1)} Resultat`}>
@@ -214,7 +261,7 @@ export function ResultatManager() {
               <label>Deltager</label>
               <select
                 value={selectedDeltager}
-                onChange={(e) => setSelectedDeltager(e.target.value)}
+                onChange={handleDeltagerChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Vælg en deltager</option>
@@ -234,7 +281,7 @@ export function ResultatManager() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Vælg en disciplin</option>
-                {discipliner.map((disciplin) => (
+                {filteredDiscipliner.map((disciplin) => (
                   <option key={disciplin.id} value={disciplin.id}>
                     {disciplin.navn}
                   </option>
