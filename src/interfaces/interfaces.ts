@@ -1,5 +1,5 @@
 export interface Deltager {
-    id: number;
+    id?: number;
     navn: string;
     køn: string;
     alder: number;
@@ -8,7 +8,16 @@ export interface Deltager {
 }
 
 export interface Disciplin {
-    id: number;
+    id?: number;
     navn: string;
     resultatType: string;
+}
+
+export interface Resultat {
+    id?: number;
+    disciplinId: number;
+    deltagerId: number;
+    resultatType: string;
+    dato: Date;
+    resultatværdi: string;
 }

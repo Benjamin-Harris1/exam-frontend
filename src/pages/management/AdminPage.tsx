@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DeltagerManager } from "./DeltagerManager";
 import { DisciplinManager } from "./DisciplinManager";
 import { Button } from "@/components/ui/button";
+import { ResultatManager } from "./ResultatManager";
 
 
 export default function AdminPage() {
@@ -49,7 +50,7 @@ export default function AdminPage() {
       </div>
       {activeTab === "deltager" && <DeltagerManager />}
       {activeTab === "disciplin" && <DisciplinManager />}
-      {activeTab === "resultat" && <DeltagerManager />}
+      {activeTab === "resultat" && <ResultatManager />}
     </div>
   );
 }
