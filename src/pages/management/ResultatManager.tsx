@@ -3,7 +3,6 @@ import {
   getResultater,
   getResultaterByDisciplin,
   createResultat,
-  //createResultater,
   updateResultat,
   deleteResultat,
 } from "../../services/api/resultatapi";
@@ -14,6 +13,7 @@ import InputField from "../../components/InputField";
 import { Resultat, Deltager, Disciplin } from "../../interfaces/interfaces";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import BatchResultatForm from "@/components/BatchResultatForm";
 
 export function ResultatManager() {
   const [resultater, setResultater] = useState<Resultat[]>([]);
@@ -24,7 +24,8 @@ export function ResultatManager() {
   const [selectedDisciplin, setSelectedDisciplin] = useState<string>("");
   const [selectedDeltager, setSelectedDeltager] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<"create" | "edit" | "delete">("create");
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"create" | "edit" | "delete" | "batch">("create");
   const [filterKøn, setFilterKøn] = useState<string>("");
   const [filterMinAlder, setFilterMinAlder] = useState<number | null>(null);
   const [filterMaxAlder, setFilterMaxAlder] = useState<number | null>(null);
@@ -88,7 +89,7 @@ export function ResultatManager() {
     });
   };
 
-  const openModal = (type: "create" | "edit" | "delete", resultat?: Resultat) => {
+  const openModal = (type: "create" | "edit" | "delete" | "batch", resultat?: Resultat) => {
     setModalType(type);
     setSelectedResultat(resultat || null);
     setIsModalOpen(true);
@@ -189,10 +190,10 @@ export function ResultatManager() {
 
       <div className="flex flex-row justify-between">
       <Button onClick={() => openModal("create")} className="mt-4 py-2 px-4 rounded">
-        Tilfj nyt resultat
+        Tilføj nyt resultat
       </Button>
-      <Button className="mt-4 py-2 px-4 rounded">
-        Tilfjer nye resultater
+      <Button onClick={() => setIsBatchModalOpen(true)} className="mt-4 py-2 px-4 rounded">
+        Tilføj nye resultater
       </Button>
       </div>
 
@@ -281,6 +282,14 @@ export function ResultatManager() {
           <li>Ingen resultater fundet</li>
         )}
       </ul>
+
+      <BatchResultatForm
+        isOpen={isBatchModalOpen}
+        onClose={() => setIsBatchModalOpen(false)}
+        deltagere={deltagere}
+        discipliner={discipliner} // Pass the discipliner array
+        fetchResultater={fetchResultater}
+      />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`${modalType.charAt(0).toUpperCase() + modalType.slice(1)} Resultat`}>
         {modalType !== "delete" ? (

@@ -24,7 +24,7 @@ export const createResultat = async (resultat: Resultat) => {
 }
 
 export const createResultater = async (resultater: Resultat[]) => {
-    return axios.post(API_URL_RESULTATER, resultater);
+    return axios.post(`${API_URL_RESULTATER}/batch`, resultater);
 }
 
 export const updateResultat = async (id: number, resultat: Resultat) => {
