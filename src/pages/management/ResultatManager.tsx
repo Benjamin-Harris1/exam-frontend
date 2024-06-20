@@ -120,31 +120,42 @@ export function ResultatManager() {
     }
   };
 
-  const handleFilterChange = async (disciplinIdStr?: string) => {
-    const disciplinId = parseInt(disciplinIdStr ?? selectedDisciplin, 10);
+  const handleFilterChange = async (disciplinIdStr?: string, køn?: string, minAlder?: number, maxAlder?: number) => {
+    const disciplinId = disciplinIdStr ? parseInt(disciplinIdStr, 10) : NaN;
     if (isNaN(disciplinId)) {
-      // If no discipline id is selected, fecth all resulkts
+      // If no discipline is selected, fetch all results
       await fetchResultater();
       return;
     }
-    const minAlder = filterMinAlder !== null ? parseInt(filterMinAlder.toString(), 10) : undefined;
-    const maxAlder = filterMaxAlder !== null ? parseInt(filterMaxAlder.toString(), 10) : undefined;
   
     // Log the parameters
     console.log("Filter parameters:", {
       disciplinId,
-      køn: filterKøn,
+      køn,
       minAlder,
       maxAlder,
     });
   
     try {
-      const response = await getResultaterByDisciplin(disciplinId, filterKøn, minAlder, maxAlder);
+      const response = await getResultaterByDisciplin(disciplinId, køn || undefined, minAlder || undefined, maxAlder || undefined);
       setResultater(response);
     } catch (error) {
       console.error("Error fetching filtered results:", error);
       setResultater([]); // Set to empty array on error
     }
+  };
+
+  const handleKønChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setFilterKøn(value);
+    handleFilterChange(selectedDisciplin, value, filterMinAlder, filterMaxAlder);
+  };
+  
+  const handleAlderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const [min, max] = e.target.value.split('-').map(v => v === "null" ? null : parseInt(v));
+    setFilterMinAlder(min);
+    setFilterMaxAlder(max);
+    handleFilterChange(selectedDisciplin, filterKøn, min, max);
   };
 
   const handleDeltagerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -203,40 +214,35 @@ export function ResultatManager() {
 
       {selectedDisciplin && (
         <div className="mt-4 flex space-x-4">
-          <div>
-            <label>Filter Køn</label>
-            <select
-              value={filterKøn}
-              onChange={(e) => { setFilterKøn(e.target.value); handleFilterChange(); }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Alle</option>
-              <option value="mand">Mand</option>
-              <option value="kvinde">Kvinde</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Filter Alder</label>
-            <select
-              value={`${filterMinAlder}-${filterMaxAlder}`}
-              onChange={(e) => {
-                const [min, max] = e.target.value.split('-').map(v => v === "null" ? null : parseInt(v));
-                setFilterMinAlder(min);
-                setFilterMaxAlder(max);
-                handleFilterChange();
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="null-null">Alle</option>
-              <option value="6-9">Børn (6-9)</option>
-              <option value="10-13">Unge (10-13)</option>
-              <option value="14-22">Junior (14-22)</option>
-              <option value="23-40">Voksne (23-40)</option>
-              <option value="41-200">Senior (41-)</option>
-            </select>
-          </div>
+        <div>
+          <label>Filtrér Køn</label>
+          <select
+            value={filterKøn}
+            onChange={handleKønChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Alle</option>
+            <option value="mand">Mand</option>
+            <option value="kvinde">Kvinde</option>
+          </select>
         </div>
+
+        <div>
+          <label>Filtrér Alder</label>
+          <select
+            value={`${filterMinAlder}-${filterMaxAlder}`}
+            onChange={handleAlderChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Alle</option>
+            <option value="6-9">Børn (6-9)</option>
+            <option value="10-13">Unge (10-13)</option>
+            <option value="14-22">Junior (14-22)</option>
+            <option value="23-40">Voksne (23-40)</option>
+            <option value="41-150">Senior (41-)</option>
+          </select>
+        </div>
+      </div>
       )}
 
       <ul className="mt-6">
