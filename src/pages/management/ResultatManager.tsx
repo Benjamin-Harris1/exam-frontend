@@ -120,11 +120,16 @@ export function ResultatManager() {
     }
   };
 
-  const handleFilterChange = async () => {
-    const disciplinId = parseInt(selectedDisciplin, 10);
+  const handleFilterChange = async (disciplinIdStr?: string) => {
+    const disciplinId = parseInt(disciplinIdStr ?? selectedDisciplin, 10);
+    if (isNaN(disciplinId)) {
+      // If no discipline id is selected, fecth all resulkts
+      await fetchResultater();
+      return;
+    }
     const minAlder = filterMinAlder !== null ? parseInt(filterMinAlder.toString(), 10) : undefined;
     const maxAlder = filterMaxAlder !== null ? parseInt(filterMaxAlder.toString(), 10) : undefined;
-
+  
     // Log the parameters
     console.log("Filter parameters:", {
       disciplinId,
@@ -132,7 +137,7 @@ export function ResultatManager() {
       minAlder,
       maxAlder,
     });
-
+  
     try {
       const response = await getResultaterByDisciplin(disciplinId, filterKøn, minAlder, maxAlder);
       setResultater(response);
@@ -160,79 +165,79 @@ export function ResultatManager() {
     }
   };
 
-  const resetFilters = () => {
-    setSelectedDisciplin("");
-    setFilterKøn("");
-    setFilterMinAlder(null);
-    setFilterMaxAlder(null);
-    fetchResultater();
+  const handleDisciplinChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    console.log("Selected Disciplin ID:", value); // Debugging log
+    setSelectedDisciplin(value);
+    await handleFilterChange(value);
   };
 
   return (
     <div>
-      <h1 className="text-3xl font-bold leading-tight text-gray-900">Administration af Resultater</h1>
-      <Button onClick={() => openModal("create")} className="mt-4 py-2 px-4 rounded">
-        Tilføj nyt resultat
-      </Button>
+      <h1 className="text-3xl font-bold leading-tight text-gray-9000">Administration af Resultater</h1>
 
-      <div className="mt-4">
-        <label>Filtrer Disciplin</label>
-        <select
-          value={selectedDisciplin}
-          onChange={(e) => setSelectedDisciplin(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">Vælg en disciplin</option>
-          {discipliner.map((disciplin) => (
-            <option key={disciplin.id} value={disciplin.id}>
-              {disciplin.navn}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mt-4">
-        <label>Filter Køn</label>
-        <select
-          value={filterKøn}
-          onChange={(e) => setFilterKøn(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="">Vælg køn</option>
-          <option value="mand">Mand</option>
-          <option value="kvinde">Kvinde</option>
-        </select>
-      </div>
-
-      <div className="mt-4">
-        <label>Filter Min Alder</label>
-        <input
-          type="number"
-          value={filterMinAlder ?? ""}
-          onChange={(e) => setFilterMinAlder(e.target.value ? parseInt(e.target.value) : null)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Indtast minimum alder"
-        />
-      </div>
-
-      <div className="mt-4">
-        <label>Filter Max Alder</label>
-        <input
-          type="number"
-          value={filterMaxAlder ?? ""}
-          onChange={(e) => setFilterMaxAlder(e.target.value ? parseInt(e.target.value) : null)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Indtast maksimum alder"
-        />
-      </div>
       <div className="flex flex-row justify-between">
-        <Button onClick={handleFilterChange} className="mt-4 py-2 px-4 rounded">
-          Anvend filter
-        </Button>
-        <Button onClick={resetFilters} className="mt-4 py-2 px-4 rounded">
-          Nulstil filter
-        </Button>
+      <Button onClick={() => openModal("create")} className="mt-4 py-2 px-4 rounded">
+        Tilfj nyt resultat
+      </Button>
+      <Button className="mt-4 py-2 px-4 rounded">
+        Tilfjer nye resultater
+      </Button>
       </div>
+
+      <div className="mt-4">
+      <label>Filtrer Disciplin</label>
+      <select
+        value={selectedDisciplin}
+        onChange={handleDisciplinChange}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="">Vælg en disciplin</option>
+        {discipliner.map((disciplin) => (
+          <option key={disciplin.id} value={disciplin.id}>
+            {disciplin.navn}
+          </option>
+        ))}
+      </select>
+    </div>
+
+      {selectedDisciplin && (
+        <div className="mt-4 flex space-x-4">
+          <div>
+            <label>Filter Køn</label>
+            <select
+              value={filterKøn}
+              onChange={(e) => { setFilterKøn(e.target.value); handleFilterChange(); }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Alle</option>
+              <option value="mand">Mand</option>
+              <option value="kvinde">Kvinde</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Filter Alder</label>
+            <select
+              value={`${filterMinAlder}-${filterMaxAlder}`}
+              onChange={(e) => {
+                const [min, max] = e.target.value.split('-').map(v => v === "null" ? null : parseInt(v));
+                setFilterMinAlder(min);
+                setFilterMaxAlder(max);
+                handleFilterChange();
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="null-null">Alle</option>
+              <option value="6-9">Børn (6-9)</option>
+              <option value="10-13">Unge (10-13)</option>
+              <option value="14-22">Junior (14-22)</option>
+              <option value="23-40">Voksne (23-40)</option>
+              <option value="41-200">Senior (41-)</option>
+            </select>
+          </div>
+        </div>
+      )}
 
       <ul className="mt-6">
         {resultater && resultater.length > 0 ? (
