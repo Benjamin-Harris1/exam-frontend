@@ -349,16 +349,26 @@ export function ResultatManager() {
             </Button>
           </form>
         ) : (
-          <div>
-            <p className="text-lg mb-4">Er du sikker på at du vil slette dette resultat?</p>
-            <div className="bg-gray-100 p-4 rounded-lg">
-              <h2 className="text-gray-800 font-semibold">
-                <span className="text-blue-600">
-                  {deltagere.find((d) => d.id === selectedResultat?.deltagerId)?.navn} -{" "}
-                  {discipliner.find((d) => d.id === selectedResultat?.disciplinId)?.navn}
-                </span>
+                <div>
+        <p className="text-lg mb-4">Er du sikker på at du vil slette dette resultat?</p>
+        <div className="bg-gray-100 p-4 rounded-lg">
+          <div className="bg-white p-2 rounded-md shadow-sm">
+            <h2 className="text-gray-800 font-semibold">
+              {deltagere.find((d) => d.id === selectedResultat?.deltagerId)?.navn}
               </h2>
+              </div>
+              <div className="bg-gray-50 p-2 rounded-md shadow-sm mt-2">
+                <p className="text-gray-600">
+                  {discipliner.find((d) => d.id === selectedResultat?.disciplinId)?.navn}
+                </p>
+              </div>
+              <div className="bg-white p-2 rounded-md shadow-sm mt-2">
+                <p className="text-gray-600">
+                  <span className="font-semibold">Resultat:</span> {selectedResultat?.resultatværdi}
+                </p>
+              </div>
             </div>
+
             <div className="flex justify-end items-center p-4 mt-4 border-t border-gray-200">
               <Button onClick={handleDelete} variant="destructive" className="py-2 px-4 rounded-l">
                 Ja, slet
