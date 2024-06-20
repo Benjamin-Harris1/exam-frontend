@@ -148,14 +148,14 @@ export function ResultatManager() {
   const handleKønChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setFilterKøn(value);
-    handleFilterChange(selectedDisciplin, value, filterMinAlder, filterMaxAlder);
+    handleFilterChange(selectedDisciplin, value, filterMinAlder ?? undefined, filterMaxAlder ?? undefined);
   };
   
   const handleAlderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const [min, max] = e.target.value.split('-').map(v => v === "null" ? null : parseInt(v));
     setFilterMinAlder(min);
     setFilterMaxAlder(max);
-    handleFilterChange(selectedDisciplin, filterKøn, min, max);
+    handleFilterChange(selectedDisciplin, filterKøn, min ?? undefined, max ?? undefined);
   };
 
   const handleDeltagerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
