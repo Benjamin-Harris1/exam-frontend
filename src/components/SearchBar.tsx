@@ -17,7 +17,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search products by name..."
+            placeholder="Søg på deltager efter navn..."
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
           <button onClick={handleSearch}
