@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import SearchBar from "@/components/SearchBar";
 import DeltagerDetails from "./DeltagerDetails";
 import DeltagerList from "./DeltagerList";
+import SortButton from "./DeltagerUtils";
 
 export function DeltagerManager() {
   const [deltagere, setDeltagere] = useState<Deltager[]>([]);
@@ -31,10 +32,21 @@ export function DeltagerManager() {
   const [modalType, setModalType] = useState<"create" | "edit" | "delete" | "details">("create");
   const { toast } = useToast();
 
+  // Sorting
+  const [sortKøn, setSortKøn] = useState<string>("");
+  const [sortAlder, setSortAlder] = useState<string>("");
+  const [sortDisciplin, setSortDisciplin] = useState<string>("");
+
   useEffect(() => {
     fetchDeltagere();
     fetchDiscipliner();
   }, []);
+
+  // Sorting effect
+  useEffect(() => {
+    setDeltagere(sortDeltagere(deltagere));
+  }, [sortKøn, sortAlder, sortDisciplin]);
+
 
   const fetchDeltagere = async () => {
     const response = await getDeltagere();
@@ -188,6 +200,32 @@ export function DeltagerManager() {
     handleFilterChange(filterKøn, filterMinAlder ?? undefined, filterMaxAlder ?? undefined, filterKlub, value);
   };
 
+
+  // Sorting
+  const sortDeltagere = (deltagere: Deltager[]) => {
+    const sortedDeltagere = [...deltagere];
+
+    if (sortKøn) {
+      sortedDeltagere.sort((a, b) => sortKøn === "asc" ? a.køn.localeCompare(b.køn) : b.køn.localeCompare(a.køn));
+    }
+
+    if (sortAlder) {
+      sortedDeltagere.sort((a, b) => sortAlder === "asc" ? a.alder - b.alder : b.alder - a.alder);
+    }
+
+    if (sortDisciplin) {
+      sortedDeltagere.sort((a, b) => {
+        const disciplinA = a.discipliner.find((d) => d.navn === sortDisciplin);
+        const disciplinB = b.discipliner.find((d) => d.navn === sortDisciplin);
+        return sortDisciplin === "asc"
+          ? (disciplinA ? disciplinA.navn : "").localeCompare(disciplinB ? disciplinB.navn : "")
+          : (disciplinB ? disciplinB.navn : "").localeCompare(disciplinA ? disciplinA.navn : "");
+      });
+    }
+
+    return sortedDeltagere;
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-bold leading-tight text-gray-900">Deltagere</h1>
@@ -254,6 +292,12 @@ export function DeltagerManager() {
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="mt-4 flex space-x-2">
+        <SortButton label="Køn" sortOrder={sortKøn} onClick={() => setSortKøn(sortKøn === "asc" ? "desc" : "asc")} />
+        <SortButton label="Alder" sortOrder={sortAlder} onClick={() => setSortAlder(sortAlder === "asc" ? "desc" : "asc")} />
+        <SortButton label="Disciplin" sortOrder={sortDisciplin} onClick={() => setSortDisciplin(sortDisciplin === "asc" ? "desc" : "asc")} />
       </div>
 
       <DeltagerList
