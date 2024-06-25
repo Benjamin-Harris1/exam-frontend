@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import SearchBar from "@/components/SearchBar";
 import DeltagerDetails from "./DeltagerDetails";
+import DeltagerList from "./DeltagerList";
 
 export function DeltagerManager() {
   const [deltagere, setDeltagere] = useState<Deltager[]>([]);
@@ -255,26 +256,11 @@ export function DeltagerManager() {
         </div>
       </div>
 
-      <ul className="mt-6">
-        {deltagere.map((deltager, index) => (
-          <li
-            key={deltager.id || index} // Use index to ensure theres a unique key
-            className="flex justify-between items-center bg-white shadow px-4 py-2 rounded-lg mt-2"
-          >
-            <span onClick={() => openDeltagerDetails(deltager)} className="font-medium text-gray-800 hover:underline cursor-pointer">
-              {deltager.navn}
-            </span>
-            <div>
-              <Button onClick={() => openModal("edit", deltager)} variant="secondary" className="py-1 px-3 rounded mr-2 hover:bg-gray-200">
-                Rediger
-              </Button>
-              <Button onClick={() => openModal("delete", deltager)} variant="secondary" className="py-1 px-3 rounded hover:bg-gray-200">
-                Slet
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <DeltagerList
+        deltagere={deltagere}
+        openModal={openModal}
+        openDeltagerDetails={openDeltagerDetails}
+      />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`${modalType.charAt(0).toUpperCase() + modalType.slice(1)} Deltager`}>
         {modalType === "details" ? (

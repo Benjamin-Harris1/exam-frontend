@@ -10,6 +10,7 @@ import { getDeltagere } from "../../services/api/deltagerapi";
 import { getDiscipliner } from "../../services/api/disciplinapi";
 import Modal from "../../components/Modal";
 import ResultatForm from "./ResultatForm";
+import ResultatList from "./ResultatList";
 import { Resultat, Deltager, Disciplin } from "../../interfaces/interfaces";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -184,15 +185,6 @@ export function ResultatManager() {
     await handleFilterChange(value);
   };
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('da-DK', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).format(date);
-  };
-
   return (
     <div>
       <h1 className="text-3xl font-bold leading-tight text-gray-9000">Resultater</h1>
@@ -255,45 +247,12 @@ export function ResultatManager() {
       </div>
       )}
 
-      <ul className="mt-6">
-        {resultater && resultater.length > 0 ? (
-          resultater.map((resultat) => {
-            const deltager = deltagere.find((d) => d.id === resultat.deltagerId);
-            const disciplin = discipliner.find((d) => d.id === resultat.disciplinId);
-            return (
-              <li key={resultat.id} className="flex justify-between items-center bg-white shadow px-4 py-2 rounded-lg mt-2">
-                <div className="flex flex-col">
-                  <span className="font-medium text-gray-800">
-                    Navn: <span className="font-normal">{deltager?.navn}</span>
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    Alder: <span className="font-normal">{deltager?.alder}</span>
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    Dato: <span className="font-normal">{formatDate(resultat.dato.toString())}</span>
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    Disciplin: <span className="font-normal">{disciplin?.navn}</span>
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    Resultat: <span className="font-normal">{resultat.resultatværdi}</span>
-                  </span>
-                </div>
-                <div>
-                  <Button onClick={() => openModal("edit", resultat)} variant="secondary" className="py-1 px-3 rounded mr-2 hover:bg-gray-200">
-                    Rediger
-                  </Button>
-                  <Button onClick={() => openModal("delete", resultat)} variant="secondary" className="py-1 px-3 rounded hover:bg-gray-200">
-                    Slet
-                  </Button>
-                </div>
-              </li>
-            );
-          })
-        ) : (
-          <li>Ingen resultater fundet</li>
-        )}
-      </ul>
+      <ResultatList
+        resultater={resultater}
+        deltagere={deltagere}
+        discipliner={discipliner}
+        openModal={openModal}
+      />
 
       <BatchResultatForm
         isOpen={isBatchModalOpen}
