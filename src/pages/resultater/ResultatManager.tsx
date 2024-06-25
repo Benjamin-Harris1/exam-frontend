@@ -62,6 +62,7 @@ export function ResultatManager() {
       }
       await fetchResultater();
       setIsModalOpen(false);
+      setSelectedDisciplin("");
       toast({
         title: modalType === "create" ? "Resultat oprettet" : "Resultat opdateret",
         description: modalType === "create" ? "Resultat er nu oprettet" : "Resultat er nu opdateret",
