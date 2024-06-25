@@ -180,9 +180,17 @@ export function ResultatManager() {
 
   const handleDisciplinChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
-    console.log("Selected Disciplin ID:", value); // Debugging log
     setSelectedDisciplin(value);
     await handleFilterChange(value);
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('da-DK', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(date);
   };
 
   return (
@@ -262,6 +270,9 @@ export function ResultatManager() {
                     Alder: <span className="font-normal">{deltager?.alder}</span>
                   </span>
                   <span className="font-medium text-gray-800">
+                    Dato: <span className="font-normal">{formatDate(resultat.dato.toString())}</span>
+                  </span>
+                  <span className="font-medium text-gray-800">
                     Disciplin: <span className="font-normal">{disciplin?.navn}</span>
                   </span>
                   <span className="font-medium text-gray-800">
@@ -333,6 +344,16 @@ export function ResultatManager() {
               value={selectedResultat?.resultatType ?? ""}
               onChange={handleInputChange}
               placeholder="Indtast resultat type"
+              required
+            />
+
+            <InputField
+              label="Dato"
+              name="dato"
+              type="date"
+              value={selectedResultat?.dato.toString() ?? ""}
+              onChange={handleInputChange}
+              placeholder="Indtast dato"
               required
             />
 

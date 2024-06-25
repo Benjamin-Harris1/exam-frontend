@@ -63,6 +63,7 @@ const BatchResultatForm: React.FC<BatchResultatFormProps> = ({ isOpen, onClose, 
       await createResultater(batchResultater);
       await fetchResultater();
       onClose();
+      resetStates();
       toast({
         title: "Resultater oprettet",
         description: "Batch resultater er nu oprettet",
@@ -134,6 +135,16 @@ const BatchResultatForm: React.FC<BatchResultatFormProps> = ({ isOpen, onClose, 
               value={resultat.resultatType}
               onChange={(e) => handleBatchInputChange(index, e)}
               placeholder="Indtast resultat type"
+              required
+            />
+
+            <InputField
+              label="Dato"
+              name="dato"
+              type="date"
+              value={resultat.dato.toString()}
+              onChange={(e) => handleBatchInputChange(index, e)}
+              placeholder="Indtast dato"
               required
             />
 
