@@ -9,7 +9,7 @@ import {
 import { getDeltagere } from "../../services/api/deltagerapi";
 import { getDiscipliner } from "../../services/api/disciplinapi";
 import Modal from "../../components/Modal";
-import InputField from "../../components/InputField";
+import ResultatForm from "./ResultatForm";
 import { Resultat, Deltager, Disciplin } from "../../interfaces/interfaces";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -305,71 +305,19 @@ export function ResultatManager() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`${modalType.charAt(0).toUpperCase() + modalType.slice(1)} Resultat`}>
         {modalType !== "delete" ? (
-          <form onSubmit={handleFormSubmit} className="space-y-4">
-            <div>
-              <label>Deltager</label>
-              <select
-                value={selectedDeltager}
-                onChange={handleDeltagerChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Vælg en deltager</option>
-                {deltagere.map((deltager) => (
-                  <option key={deltager.id} value={deltager.id}>
-                    {deltager.navn}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Disciplin</label>
-              <select
-                value={selectedDisciplin}
-                onChange={(e) => setSelectedDisciplin(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Vælg en disciplin</option>
-                {filteredDiscipliner.map((disciplin) => (
-                  <option key={disciplin.id} value={disciplin.id}>
-                    {disciplin.navn}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <InputField
-              label="Resultat Type"
-              name="resultatType"
-              value={selectedResultat?.resultatType ?? ""}
-              onChange={handleInputChange}
-              placeholder="Indtast resultat type"
-              required
-            />
-
-            <InputField
-              label="Dato"
-              name="dato"
-              type="date"
-              value={selectedResultat?.dato.toString() ?? ""}
-              onChange={handleInputChange}
-              placeholder="Indtast dato"
-              required
-            />
-
-            <InputField
-              label="Resultat Værdi"
-              name="resultatværdi"
-              value={selectedResultat?.resultatværdi ?? ""}
-              onChange={handleInputChange}
-              placeholder="Indtast resultat værdi"
-              required
-            />
-
-            <Button type="submit" className="mt-4 py-2 px-4 rounded">
-              {modalType === "create" ? "Opret resultat" : "Gem ændringer"}
-            </Button>
-          </form>
+          <ResultatForm
+          selectedResultat={selectedResultat}
+          selectedDeltager={selectedDeltager}
+          selectedDisciplin={selectedDisciplin}
+          deltagere={deltagere}
+          discipliner={discipliner}
+          filteredDiscipliner={filteredDiscipliner}
+          modalType={modalType}
+          handleInputChange={handleInputChange}
+          handleDeltagerChange={handleDeltagerChange}
+          handleFormSubmit={handleFormSubmit}
+          setSelectedDisciplin={setSelectedDisciplin}
+        />
         ) : (
                 <div>
         <p className="text-lg mb-4">Er du sikker på at du vil slette dette resultat?</p>
