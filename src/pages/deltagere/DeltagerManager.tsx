@@ -35,18 +35,11 @@ export function DeltagerManager() {
   // Sorting
   const [sortKøn, setSortKøn] = useState<string>("");
   const [sortAlder, setSortAlder] = useState<string>("");
-  const [sortDisciplin, setSortDisciplin] = useState<string>("");
 
   useEffect(() => {
     fetchDeltagere();
     fetchDiscipliner();
   }, []);
-
-  // Sorting effect
-  useEffect(() => {
-    setDeltagere(sortDeltagere(deltagere));
-  }, [sortKøn, sortAlder, sortDisciplin]);
-
 
   const fetchDeltagere = async () => {
     const response = await getDeltagere();
@@ -213,18 +206,28 @@ export function DeltagerManager() {
       sortedDeltagere.sort((a, b) => sortAlder === "asc" ? a.alder - b.alder : b.alder - a.alder);
     }
 
-    if (sortDisciplin) {
-      sortedDeltagere.sort((a, b) => {
-        const disciplinA = a.discipliner.find((d) => d.navn === sortDisciplin);
-        const disciplinB = b.discipliner.find((d) => d.navn === sortDisciplin);
-        return sortDisciplin === "asc"
-          ? (disciplinA ? disciplinA.navn : "").localeCompare(disciplinB ? disciplinB.navn : "")
-          : (disciplinB ? disciplinB.navn : "").localeCompare(disciplinA ? disciplinA.navn : "");
-      });
-    }
-
     return sortedDeltagere;
   };
+
+  const handleSortKønClick = () => {
+    setSortKøn((prevSortKøn) => {
+      if (prevSortKøn === "") return "asc";
+      if (prevSortKøn === "asc") return "desc";
+      return "";
+    });
+  };
+
+  const handleSortAlderClick = () => {
+    setSortAlder((prevSortAlder) => {
+      if (prevSortAlder === "") return "asc";
+      if (prevSortAlder === "asc") return "desc";
+      return "";
+    });
+  };
+
+  useEffect(() => {
+    setDeltagere(sortDeltagere(deltagere));
+  }, [sortKøn, sortAlder]);
 
   return (
     <div>
@@ -295,9 +298,8 @@ export function DeltagerManager() {
       </div>
 
       <div className="mt-4 flex space-x-2">
-        <SortButton label="Køn" sortOrder={sortKøn} onClick={() => setSortKøn(sortKøn === "asc" ? "desc" : "asc")} />
-        <SortButton label="Alder" sortOrder={sortAlder} onClick={() => setSortAlder(sortAlder === "asc" ? "desc" : "asc")} />
-        <SortButton label="Disciplin" sortOrder={sortDisciplin} onClick={() => setSortDisciplin(sortDisciplin === "asc" ? "desc" : "asc")} />
+        <SortButton label="Køn" sortOrder={sortKøn} onClick={handleSortKønClick} />
+        <SortButton label="Alder" sortOrder={sortAlder} onClick={handleSortAlderClick} />
       </div>
 
       <DeltagerList
